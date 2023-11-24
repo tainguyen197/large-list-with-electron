@@ -8,6 +8,7 @@ export type Channels =
   | 'files-read-success'
   | 'get-content-with-path'
   | 'get-content-with-path-success'
+  | 'get-content-with-path-error'
   | 'get-content-with-path-enhance-with-resizing'
   | 'get-content-with-url-with-resizing';
 

@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useRemoteData } from './useRemoteData';
 
-const useImagesWithUrlViaMain = (path: string) => {
+const useImagesWithUrlViaMain = (
+  path: string,
+  { limit }: { limit: number },
+) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [isEnd, setEnd] = useState(false);
+  const [error, setError] = useState('');
+
   const [isObserver, setObserver] = useState(false);
-  const { data: value } = useRemoteData(path, { page });
 
   const handleReceivedData = (data: any) => {
     if (!data?.length) setEnd(true);
@@ -16,22 +19,26 @@ const useImagesWithUrlViaMain = (path: string) => {
     setLoading(false);
   };
 
+  const handleReceivedError = (error) => {
+    setError(error);
+    setLoading(false);
+  };
+
   const handleObserver = (value: boolean) => {
     setObserver(value);
   };
 
   useEffect(() => {
-    if (!value.length) return;
-
     window.electron.ipcRenderer.sendMessage(
       'get-content-with-url-with-resizing',
       {
-        urlList: value,
+        dataSource: path,
         page,
+        limit,
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [page]);
 
   useEffect(() => {
     window.electron.ipcRenderer.on(
@@ -42,13 +49,21 @@ const useImagesWithUrlViaMain = (path: string) => {
   }, []);
 
   useEffect(() => {
+    window.electron.ipcRenderer.on(
+      'get-content-with-path-error',
+      handleReceivedError,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (!isObserver || isEnd) return;
 
     setPage((page) => page + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isObserver, isEnd]);
+  }, [isObserver, isEnd, isLoading]);
 
-  return { data, isLoading, isEnd, handleObserver };
+  return { data, isLoading, isEnd, error, handleObserver };
 };
 
 export default useImagesWithUrlViaMain;

@@ -16,7 +16,7 @@ const mappingIcon = {
   '.mp4': mp4Icon,
 };
 
-const getExtensionIcon = (extension: keyof typeof mappingIcon) => {
+const getExtensionIcon = (extension: keyof typeof mappingIcon | string) => {
   return mappingIcon[extension] || unknownIcon;
 };
 

@@ -1,14 +1,8 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable promise/catch-or-return */
-/* eslint-disable react/require-default-props */
-/* eslint-disable react/jsx-curly-brace-presence */
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/function-component-definition */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import getFileSize from '../utils/getFileSize';
+import defaultImage from '../../../assets/images/default_image.jpeg';
 
 const Wrapper = styled('div')({
   display: 'flex',
@@ -37,8 +31,8 @@ const ImageStyled = styled('img')({
 });
 
 const ThumbStyled = styled('img')({
-  height: 48,
-  width: 48,
+  height: 60,
+  width: 60,
   backgroundColor: '#302727c4',
   objectFit: 'cover',
   objectPosition: 'center',
@@ -64,23 +58,23 @@ interface Props {
   selected?: boolean;
 }
 
-const Image = ({ title, url, variant = 'gridView', ...others }: Props) => {
+const Image = ({ title, variant = 'gridView', ...others }: Props) => {
   const [selected, setSelected] = useState(false);
-  const [resizedImage, setResizedImage] = useState();
-
-  // useEffect(() => {
-  //   const start = now();
-  //   resizeImage(url).then((img) => {
-  //     const end = now();
-  //     setResizedImage(img);
-  //     console.log(end - start, 'ms');
-  //   });
-  // }, []);
 
   let rs;
 
   const handleClick = () => {
     setSelected((state) => !state);
+  };
+
+  const handleImageError = (event) => {
+    event.target.src = defaultImage;
+  };
+
+  const getImageSrc = () => {
+    if (others.fileContent) return others.fileContent;
+
+    return defaultImage;
   };
 
   if (variant === 'gridView')
@@ -96,29 +90,45 @@ const Image = ({ title, url, variant = 'gridView', ...others }: Props) => {
       >
         <ImageStyled
           loading="lazy"
-          src={resizedImage || url || others.fileContent}
+          src={getImageSrc()}
           alt={title}
+          onError={handleImageError}
         />
       </Box>
     );
 
   if (variant === 'listView')
     rs = (
-      <Wrapper sx={{ borderBottom: 'solid 1px #29232314' }}>
+      <Wrapper sx={{ borderBottom: 'solid 1px #29232214' }}>
         <Box display={'flex'} sx={{ alignItems: 'center' }}>
           <ThumbStyled
             loading="lazy"
-            src={resizedImage || url || others.fileContent}
+            src={getImageSrc()}
             alt={title}
+            onError={handleImageError}
           />
-          <Typography variant="body1" style={{ paddingLeft: '8px' }}>
+          <Typography
+            variant="body1"
+            style={{
+              paddingLeft: '8px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {title}
           </Typography>
         </Box>
         {others.fileSize && (
-          <Typography variant="body2" fontWeight={400} sx={{ pl: 1, pr: 4 }}>
-            {getFileSize(others.fileSize as number)}
-          </Typography>
+          <Box display={'flex'} fontWeight={400} sx={{ pl: 1, pr: 4 }}>
+            <Typography variant="body2">
+              {getFileSize(others.fileSize as number)} (
+              <span style={{ color: 'green', fontWeight: 'bold' }}>
+                {Math.ceil(others.resizeSize)} KB
+              </span>
+              )
+            </Typography>
+          </Box>
         )}
       </Wrapper>
     );
@@ -145,7 +155,7 @@ Image.LoadingSkeleton = ({ variant }: { variant: 'listView' | 'gridView' }) => {
           sx={{ ml: 1 }}
           animation="wave"
           variant="text"
-          width={'50%'}
+          width={`50%`}
           height={'24px'}
         />
       </Box>

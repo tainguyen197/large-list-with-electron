@@ -5,7 +5,7 @@ export interface State {
 }
 
 const initialState: State = {
-  currentDirection: '/Users/lap14894/Documents/Small Images (1153 items)',
+  currentDirection: '/Users',
 };
 
 export const directionSlice = createSlice({

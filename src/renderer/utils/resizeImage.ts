@@ -1,5 +1,9 @@
+import { now } from 'lodash';
+
 export function resizeImage(imageURL: string) {
   return new Promise((resolve, reject) => {
+    const startTime = now();
+
     const imageDescription = 'The Mozilla logo';
 
     const downloadedImg = new Image();
@@ -22,13 +26,22 @@ export function resizeImage(imageURL: string) {
         newHeight = maxDimension;
       }
 
-      canvas.width = newWidth;
-      canvas.height = newHeight;
+      canvas.width = 320;
+      canvas.height = 320;
 
-      context?.drawImage(downloadedImg, 0, 0, newWidth, newHeight);
+      context?.drawImage(downloadedImg, 0, 0, 320, 320);
 
       try {
-        const dataURL = canvas.toDataURL('image/png');
+        const dataURL = canvas.toDataURL('image/jpeg');
+        const endTime = now();
+
+        console.log(
+          'run time from: ',
+          downloadedImg.width,
+          'x',
+          downloadedImg.height,
+          endTime - startTime,
+        );
         resolve(dataURL);
       } catch (err) {
         reject(`Error: ${err}`);

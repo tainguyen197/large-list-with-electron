@@ -24,6 +24,9 @@ const GridViewWrapper = styled(Box)({
   justifyContent: 'center',
   alignItems: 'center',
   flexDirection: 'column',
+  '&:hover': {
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
 });
 
 const ItemSelectedStyled = styled(Box)({
@@ -56,18 +59,21 @@ const Folder = ({ title, variant, ...others }: Props) => {
     rs = (
       <Box position="relative" sx={{ aspectRatio: '1 / 1' }}>
         <GridViewWrapper>
-          <IconButton size="large" sx={{ height: '60px' }}>
-            <FolderIcon
-              sx={{ color: 'cornflowerblue', fontSize: '80px' }}
-              // sx={{}}
-            />
+          <IconButton
+            size="large"
+            sx={{
+              ':hover': {
+                backgroundColor: 'unset',
+              },
+            }}
+          >
+            <FolderIcon sx={{ color: 'cornflowerblue', fontSize: '80px' }} />
           </IconButton>
           <Typography
             variant="body1"
             sx={{
               width: '-webkit-fill-available',
               px: 2,
-              pt: 3,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -88,7 +94,7 @@ const Folder = ({ title, variant, ...others }: Props) => {
           borderBottom: 'solid 1px #29232314',
         }}
       >
-        <FolderIcon sx={{ color: 'cornflowerblue', fontSize: '48px' }} />
+        <FolderIcon sx={{ color: 'cornflowerblue', fontSize: '60px' }} />
         <Typography variant="body1" sx={{ paddingLeft: '8px' }}>
           {title}
         </Typography>

@@ -4,10 +4,9 @@
 /* eslint-disable react/function-component-definition */
 import { useState } from 'react';
 import { Box, IconButton, Typography } from '@mui/material';
-import DescriptionIcon from '@mui/icons-material/Description';
 import { styled } from '@mui/system';
 import getFileSize from '../utils/getFileSize';
-import getExtensionIcon, { mappingIcon } from '../utils/getExtentionIcon';
+import getExtensionIcon from '../utils/getExtentionIcon';
 
 const Wrapper = styled('div')({
   display: 'flex',
@@ -41,11 +40,10 @@ interface Props {
   title: string;
   fileSize?: number;
   variant: 'listView' | 'gridView';
-  modificationTime?: any;
   fileExtension: string;
 }
 
-const File = ({ title, variant, ...others }: Props) => {
+const File = ({ title, variant, fileExtension, fileSize }: Props) => {
   const [selected, setSelected] = useState(false);
   let rs;
 
@@ -60,7 +58,7 @@ const File = ({ title, variant, ...others }: Props) => {
           <IconButton size="large">
             <img
               style={{ height: '60px' }}
-              src={getExtensionIcon(others.fileExtension)}
+              src={getExtensionIcon(fileExtension)}
               alt={title}
             />
           </IconButton>
@@ -78,7 +76,7 @@ const File = ({ title, variant, ...others }: Props) => {
             {title}
           </Typography>
           <Typography variant="body2" sx={{ px: '8px' }}>
-            {getFileSize(others.fileSize as number)}
+            {getFileSize(fileSize as number)}
           </Typography>
         </GridViewWrapper>
       </Box>
@@ -89,8 +87,8 @@ const File = ({ title, variant, ...others }: Props) => {
       <Wrapper sx={{ borderBottom: 'solid 1px #29232314', pl: 0.5 }}>
         <Box display={'flex'} sx={{ alignItems: 'center' }}>
           <img
-            style={{ height: '48px' }}
-            src={getExtensionIcon(others.fileExtension)}
+            style={{ height: '60px' }}
+            src={getExtensionIcon(fileExtension)}
             alt={title}
           />
           <Typography variant="body1" style={{ paddingLeft: '8px' }}>
@@ -98,7 +96,7 @@ const File = ({ title, variant, ...others }: Props) => {
           </Typography>
         </Box>
         <Typography variant="body2" sx={{ pl: 1, pr: 4 }}>
-          {getFileSize(others.fileSize as number)}
+          {getFileSize(fileSize as number)}
         </Typography>
       </Wrapper>
     );

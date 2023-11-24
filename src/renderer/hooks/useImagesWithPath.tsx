@@ -3,28 +3,39 @@ import { useSelector } from 'react-redux';
 import { getCurrentDirection } from '../selectors';
 import { Channels } from '../../main/preload';
 
-const useImagesWithPath = (path: Channels) => {
+const useImagesWithPath = (
+  path: Channels,
+  { limit = 10 }: { limit: number },
+) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   const [isEnd, setEnd] = useState(false);
   const [isObserver, setObserver] = useState(false);
+  const [error, setError] = useState('');
 
   const direction = useSelector(getCurrentDirection);
   const handleReceivedData = (data: any) => {
     if (!data?.length) setEnd(true);
 
+    console.log('on receive data');
+
     setData((state) => [...state, ...data] as any);
     setLoading(false);
   };
 
-  const handleGetContent = () => {
-    setLoading(true);
+  const handleReceivedError = (error) => {
+    setError(error);
+    setLoading(false);
+  };
 
+  const handleGetContent = ({ page, direction }) => {
+    setLoading(true);
     try {
       window.electron.ipcRenderer.sendMessage(path, {
         folderPath: direction,
         page,
+        limit,
       });
     } catch (error) {
       console.error('Error setting up IPC listeners:', error);
@@ -44,18 +55,33 @@ const useImagesWithPath = (path: Channels) => {
   }, []);
 
   useEffect(() => {
+    window.electron.ipcRenderer.on(
+      'get-content-with-path-error',
+      handleReceivedError,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     setEnd(false);
     setData([]);
     setPage(0);
     setLoading(true);
-
+    setError('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction]);
 
   useEffect(() => {
-    handleGetContent();
+    handleGetContent({ page: 0, direction });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, direction]);
+  }, [direction]);
+
+  useEffect(() => {
+    if (!page) return;
+
+    handleGetContent({ direction, page });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     if (!isObserver || isEnd || isLoading) return;
@@ -64,7 +90,7 @@ const useImagesWithPath = (path: Channels) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isObserver, isEnd, isLoading]);
 
-  return { data, isLoading, isEnd, handleObserver };
+  return { data, isLoading, isEnd, error, handleObserver };
 };
 
 export default useImagesWithPath;

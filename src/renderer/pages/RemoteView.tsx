@@ -1,39 +1,69 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
+import { useContext } from 'react';
 import ListView from '../components/ListView';
-import { fetchDataList } from '../actions';
-import { getImages } from '../selectors';
 import VirtualizeList from '../components/VirtualizeList';
 import useDataWithUrl from '../hooks/useImagesWithUrl';
 import useImagesWithUrlViaMain from '../hooks/useImagesWithUrlViaMain';
+import { LimitContext } from './View';
+import { Box, Typography } from '@mui/material';
 
 interface Props {
   dataSource: string;
+  type: 'normal' | 'virtualize';
 }
 
-const url =
-  'https://images.unsplash.com/photo-1542395975-d6d3ddf91d6e?auto=format&fit=crop&q=80&w=2370&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
-const RemoteView = ({ dataSource }: Props) => {
+const RemoteView = ({ dataSource, type = 'normal' }: Props) => {
+  const limit = useContext(LimitContext);
   // const { data, isEnd, handleObserver } = useDataWithUrl(dataSource);
-  const { data, isEnd, handleObserver } = useImagesWithUrlViaMain(dataSource);
+  const { data, isEnd, handleObserver } = useImagesWithUrlViaMain(dataSource, {
+    limit,
+  });
 
+  console.log(data.length);
   return (
-    // <ListView
-    //   onObserver={handleObserver}
-    //   smoothLoading={!isEnd}
-    //   type="image"
-    //   data={data}
-    //   identity="getRemoteView"
-    // />
-    <VirtualizeList
-      identity="getRemoteView"
-      data={data}
-      smoothLoading={!isEnd}
-      type="image"
-      onObserver={handleObserver}
-    />
+    <>
+      <Box
+        position="fixed"
+        zIndex={999}
+        top={0}
+        display="flex"
+        sx={{
+          alignItems: 'center',
+          p: 2,
+          width: '100%',
+          backgroundColor: '#fff',
+          boxShadow: 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px',
+        }}
+      >
+        <Typography
+          sx={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden !important',
+            textOverflow: 'ellipsis',
+          }}
+          variant="h6"
+        >
+          {dataSource}
+        </Typography>
+      </Box>
+      {type === 'normal' && (
+        <ListView
+          onObserver={handleObserver}
+          smoothLoading
+          isEnd
+          data={data}
+          identity="getRemoteView"
+        />
+      )}
+      {type === 'virtualize' && (
+        <VirtualizeList
+          data={data}
+          isEnd={isEnd}
+          identity="getRemoteView"
+          smoothLoading
+          onObserver={handleObserver}
+        />
+      )}
+    </>
   );
 };
 
